@@ -1,6 +1,6 @@
 ---
 name: ui-ux-plan
-description: Plans UI/UX changes by grounding new requirements in a project's existing design — discovers the design system, components, and patterns already in use, then produces a concrete change plan (layout, states, interactions, edge cases, reuse-vs-build) before any code is written. Use when asked to design, redesign, add, or change a screen/page/component/flow, or when a feature request has visible UI but no UI plan yet. Triggers on "design the UI for…", "plan the UI", "how should this screen look", "add a … page/modal/panel", "redesign this view". Not for pure backend work, copy-only tweaks, or implementing an already-approved design.
+description: "Use when asked to design, redesign, add, or change a screen, page, component, or flow, or when a feature has visible UI but no UI plan yet — 'design the UI for X', 'plan the UI', 'how should this screen look', 'add a page/modal/panel', 'redesign this view'. Grounds new requirements in the project's existing design: discovers the design system, components, and patterns already in use, then produces a concrete change plan (layout, states, interactions, edge cases, reuse-vs-build) before any code. A plan, not code. Not for pure backend work (use data-flow-plan), copy-only tweaks, or implementing an approved design."
 ---
 
 # UI/UX Plan
@@ -89,12 +89,12 @@ Output a tight, skimmable plan. Default structure (drop sections that don't appl
 
 Where a layout choice is load-bearing or two directions are genuinely viable, sketch an **ASCII wireframe** (or a couple to compare) so the user reacts to something concrete rather than prose. For real visual mockups or pushing into Figma, the Figma skills/tools are the right path — this skill stops at the plan.
 
-When the requirement is fully clear and self-contained you can move straight through the phases without interrogating the user; when a fork genuinely changes the design (e.g. modal vs. full page, table vs. cards), use `AskUserQuestion` with concrete options — and previews/wireframes when they help the choice.
+When the requirement is fully clear and self-contained you can move straight through the phases without interrogating the user; when a fork genuinely changes the design (e.g. modal vs. full page, table vs. cards), ask the user with concrete options — and previews/wireframes when they help the choice.
 
 ## Tools to prefer / avoid
 
-- **Discovery (Phase 2)** — prefer read-only search: `Grep`/`Glob` and reading the nearest screen directly; delegate broad sweeps (token hunt, component vocabulary, similar-screen scan) to the `Explore` agent and keep the conclusions.
-- **Forks** — use `AskUserQuestion` only when a choice genuinely changes the design; otherwise pick the consistent default and note it.
+- **Discovery (Phase 2)** — prefer read-only search: `Grep`/`Glob` and reading the nearest screen directly; delegate broad sweeps (token hunt, component vocabulary, similar-screen scan) to an exploration subagent and keep the conclusions.
+- **Forks** — ask the user only when a choice genuinely changes the design; otherwise pick the consistent default and note it.
 - **Mockups / Figma** — for real visual mockups or pushing a design into Figma, hand off to the Figma skills (`figma-generate-design`, etc.); this skill stops at the plan.
 - **Avoid** — writing implementation code, editing views/stylesheets, or running the app. This skill plans; building happens after the plan is agreed.
 

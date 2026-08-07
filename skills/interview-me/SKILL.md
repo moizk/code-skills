@@ -1,6 +1,6 @@
 ---
 name: interview-me
-description: Extracts what the user actually wants vs. what they think they should ask for, via a one-question-at-a-time interview until ~95% confidence in the underlying intent. Use when an ask is underspecified ("build me X" with no who/why/success), when the user invokes it ("interview me", "grill me", "are we sure?", "stress-test this"), or when you catch yourself silently filling in ambiguous requirements before any plan, spec, or code exists. Not for unambiguous self-contained asks (renames, typos, factual questions), when the user wants speed over verification, or in non-interactive runs.
+description: "Use when an ask is underspecified ('build me X' with no who/why/success), when the user invokes it ('interview me', 'grill me', 'are we sure?', 'stress-test this'), or when you catch yourself silently filling in ambiguous requirements before any plan, spec, or code exists. Extracts what the user actually wants vs what they think they should ask for, via a one-question-at-a-time interview until ~95% confidence, producing a confirmed statement of intent that downstream skills consume. Not for unambiguous self-contained asks (renames, typos, factual questions), speed-over-verification moments, or non-interactive runs."
 ---
 
 # Interview Me
@@ -58,7 +58,7 @@ Done when you can answer yes to: **Can I predict the user's reaction to the next
 
 ## Output
 
-A confirmed statement of intent (the Step 4 restate + an explicit yes). Specs, plans, and tasks are downstream. If the intent must persist (multi-session work, a handoff), offer to save it to `docs/intent/[topic].md` — only after the user confirms.
+A confirmed statement of intent (the Step 4 restate + an explicit yes). Specs, plans, and tasks are downstream. If the intent must persist (multi-session work, a handoff), offer to save it to `.claude/tmp/intent/[topic].md` (pipeline scratch; use `docs/intent/[topic].md` only when the user wants a durable doc) — only after the user confirms.
 
 ## Validation
 

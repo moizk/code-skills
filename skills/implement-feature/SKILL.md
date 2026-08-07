@@ -1,6 +1,6 @@
 ---
 name: implement-feature
-description: Builds a decided feature end to end like a senior engineer — absorbs all existing knowledge (repo instructions, docs, conventions, any prior plan) and the actual codebase, derives a test plan from the requirements FIRST, then implements against it and runs that plan to prove the work. This is the execution skill: it writes the code, not just a plan. Use when you're ready to actually build a feature, fix, or change and want it shipped tested and verified — "implement this", "build this feature", "write the code for…", "make it work and test it", "do it like a senior dev". Triggers on a concrete, decided change that should result in working, tested code. Not for deciding architecture (use data-flow-plan), screen design (use ui-ux-plan), producing a plan without code (use implementation-plan), or fuzzy intent (use interview-me / idea-refine).
+description: "Use when a concrete, decided feature, fix, or change should be built end to end and result in working, tested code — 'implement this', 'build this feature', 'write the code for X', 'make it work and test it', 'do it like a senior dev'. Works like a senior engineer: absorbs repo instructions, conventions, and any prior plan, derives a test plan from the requirements first, implements against it, and runs that plan to prove the work. This is the execution skill — it writes the code, not just a plan. Not for deciding architecture (use data-flow-plan), screen design (use ui-ux-plan), a plan without code (use implementation-plan), or fuzzy intent (use interview-me / idea-refine)."
 metadata:
   version: "1.0.0"
 ---
@@ -54,14 +54,17 @@ Write the tests now where you can (they will fail until the code exists — that
 
 ### Phase 3 — Discover the implementation surface
 
-Read the real code you'll touch. Never build against imagined signatures.
+Read the real code you'll touch — never build against imagined signatures. This is
+the same discovery discipline `implementation-plan` runs in depth (its Phase 2): if
+an implementation plan already exists, its touch list IS this phase — verify it
+against the tree and move on. Otherwise, compressed:
 
-- **The exact files, classes, and methods that will change** — open them, note current signatures, what they return, and who calls them.
-- **The nearest analogous change already in the codebase** — the most similar feature or module someone already built. It's the strongest template for structure, naming, file placement, and test layout. Mirror it. (`git log` / blame on a similar file is often the fastest route.)
-- **Mechanical surfaces** the change touches — migrations, schema, config, feature flags, env, i18n, serializers, routes — and the project's existing pattern for each.
-- **Blast radius** — callers of what you'll edit, public interfaces/API contracts, shared state, background jobs reading the same data, backward-compatibility needs.
+- **The exact files/classes/methods that will change** — open them; note signatures, returns, callers.
+- **The nearest analogous change** — the strongest template for structure, naming, placement, and test layout; mirror it (`git log`/blame finds it fast).
+- **Mechanical surfaces** — migrations, schema, config, flags, env, i18n, serializers, routes — and the project's pattern for each.
+- **Blast radius** — callers, public contracts, shared state, jobs reading the same data, backward compatibility.
 
-Delegate broad sweeps (find-the-callers, nearest-change, test-convention scan) to the `Explore` agent and keep the conclusions plus real signatures, not the file dumps. If something you assumed doesn't exist or doesn't match the design, **surface it** — it's a finding.
+Delegate broad sweeps to an exploration subagent and keep the conclusions plus real signatures, not the file dumps. If something you assumed doesn't exist or doesn't match the design, **surface it** — it's a finding.
 
 ### Phase 4 — Implement
 
@@ -102,9 +105,9 @@ Commit, push, branch, or open a PR **only when explicitly asked**. Default is to
 
 ## Tools to prefer / avoid
 
-- **Discovery** — `Grep`/`Glob`, `git log`/`git blame` on the nearest analogous change, and reading target files directly. Delegate broad sweeps to the `Explore` agent; keep conclusions plus real signatures.
-- **Implementation** — `Edit` for changes to existing files (read first), `Write` for genuinely new files. Run the project's own test/lint/build commands for validation.
-- **Forks** — use `AskUserQuestion` only when a choice genuinely changes the implementation (a real branch in approach or behavior); otherwise pick the consistent default and note it. Don't interrogate the user through a self-contained task.
+- **Discovery** — `Grep`/`Glob`, `git log`/`git blame` on the nearest analogous change, and reading target files directly. Delegate broad sweeps to an exploration subagent; keep conclusions plus real signatures.
+- **Implementation** — edit existing files in place (always read them first); create new files only where the change genuinely needs them. Run the project's own test/lint/build commands for validation.
+- **Forks** — ask the user only when a choice genuinely changes the implementation (a real branch in approach or behavior); otherwise pick the consistent default and note it. Don't interrogate the user through a self-contained task.
 - **Avoid** — committing/pushing/branching without being asked; editing before absorbing repo instructions and baseline state; over-broad refactors; claiming success without running the verification.
 
 ## Validation — self-check before declaring done

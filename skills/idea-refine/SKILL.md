@@ -1,6 +1,6 @@
 ---
 name: idea-refine
-description: Refines raw ideas into sharp, actionable concepts via structured divergent-then-convergent thinking — restate as a problem, generate variations, stress-test, converge to a one-pager. Use when an idea is still vague, when you want to expand options before committing, or to stress-test assumptions before a plan. Triggers on "ideate", "refine this idea", "stress-test my plan". Not for ideas already scoped and ready to build, pure implementation/execution tasks, or factual questions.
+description: "Use when an idea is still vague, when you want to expand options before committing, or to stress-test assumptions before a plan — 'ideate', 'refine this idea', 'stress-test my plan'. Refines raw ideas into sharp, actionable concepts via divergent-then-convergent thinking: restate as a problem, generate variations, stress-test, converge to a one-pager that moves work forward. Not for ideas already scoped and ready to build, pure implementation tasks, or factual questions."
 ---
 
 # Idea Refine
@@ -26,7 +26,7 @@ This is the step *after* intent is clear: if the underlying ask itself is fuzzy 
 ### Phase 1 — Understand & Expand (diverge)
 
 1. **Restate the idea** as a crisp "How Might We…" problem statement.
-2. **Ask 3–5 sharpening questions** (no more) via `AskUserQuestion`: who exactly is this for, what does success look like, real constraints (time/tech/resources), what's been tried, why now. Do not proceed until *who it's for* and *what success looks like* are clear.
+2. **Ask 3–5 sharpening questions** (no more), as concrete multiple-choice options where possible: who exactly is this for, what does success look like, real constraints (time/tech/resources), what's been tried, why now. Do not proceed until *who it's for* and *what success looks like* are clear.
 3. **Generate 5–8 variations** (not 20) using the lenses that fit — don't run all mechanically:
    - **Inversion** — what if we did the opposite?
    - **Constraint removal** — what if budget/time/tech weren't factors?
@@ -71,7 +71,7 @@ Produce the one-pager:
 ## Open Questions
 - [Question that must be answered before building]
 ```
-Offer to save to `docs/ideas/[idea-name].md` — only after the user confirms.
+Offer to save to `.claude/tmp/ideas/[idea-name].md` (pipeline scratch; use `docs/ideas/[idea-name].md` only when the user wants a durable doc) — only after the user confirms.
 
 ## Tone
 

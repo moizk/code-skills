@@ -1,6 +1,6 @@
 ---
 name: code-review-and-quality
-description: Conducts a multi-axis code review of a change before it merges — establishes the change's intent and scope FIRST, then reviews the diff across correctness, readability/simplicity, architecture, and performance, with a light security smell-check, and returns an approve / approve-with-changes / request-changes verdict with severity-labeled, evidence-backed findings. This is the code-quality gate, not the security or conformance layer. Reviews code written by yourself, another agent, or a human — and treats AI-generated code as needing more scrutiny, not less. Use before merging any change, after finishing a feature, when evaluating code another model produced, after a refactor, or after a bug fix (review the fix and its regression test). Triggers on "review this code", "review this PR/diff", "is this ready to merge", "code review", "review the change". Reports and gates; it does not edit code. Not for deep security sign-off (use code-security-review), business-requirements conformance (use requirements-qa), running the app (use verify), or building the change (use implement-feature).
+description: "Use before merging any change, after finishing a feature, refactor, or bug fix, or when evaluating code another model or human produced — 'review this code', 'review this PR/diff', 'is this ready to merge', 'code review'. Multi-axis review: establishes the change's intent and scope first, then audits correctness, readability, architecture, and performance with a light security smell-check, returning approve / approve-with-changes / request-changes with severity-labeled, evidence-backed findings. Treats AI-generated code as needing more scrutiny, not less. Reports and gates; does not edit code. Not for deep security (use code-security-review), business conformance (use requirements-qa), or running the app (use verify)."
 metadata:
   version: "1.0.0"
 ---
@@ -33,7 +33,7 @@ A change can pass this review (clean, correct) and still fail `requirements-qa` 
 - Deep security sign-off / "is this safe to deploy" → `code-security-review`.
 - Whether the change delivers the business requirement → `requirements-qa`.
 - Confirming the app mechanically runs → `verify`.
-- Writing or fixing the code → `implement-feature` / `/code-review --fix`. **This skill reports and gates; it does not edit code.**
+- Writing or fixing the code → `implement-feature`. **This skill reports and gates; it does not edit code.**
 
 ## Process
 
@@ -132,7 +132,7 @@ Output a tight, skimmable report:
 **To verify** — anything you couldn't determine from the code alone, flagged not assumed.
 ```
 
-Scale the report to the change — a one-line fix gets a few lines; a feature gets the full axis pass. When the verdict hinges on an unanswered question (intended behavior, why an approach was chosen), the verdict is **Blocked on clarification**, not a guess — use `AskUserQuestion` when the answer changes the verdict.
+Scale the report to the change — a one-line fix gets a few lines; a feature gets the full axis pass. When the verdict hinges on an unanswered question (intended behavior, why an approach was chosen), the verdict is **Blocked on clarification**, not a guess — ask the user when the answer changes the verdict.
 
 ## Multi-model / second-pair-of-eyes review
 
@@ -152,11 +152,10 @@ Different models and people have different blind spots — that's the whole valu
 
 ## Tools to prefer / avoid
 
-- **Context & diff** — `git diff`/`git log`, `Grep`/`Glob`/`Read` to read the change, trace a value to its source, and find the conventions/duplication it should match. Read `CLAUDE.md` for the project's standard.
-- **Broad sweeps** — delegate "find every caller of this" / "every place this pattern exists" to the `Explore` agent; keep the conclusions plus the evidence locations.
+Shared practice for all lenses (evidence discipline, broad sweeps, clarification, report-only) — [../_shared/review-practice.md](../_shared/review-practice.md). Specific to this lens:
+
 - **Proving the doubtful cases** — run the project's tests, or hand a "does it actually run" question to `verify`, rather than reasoning about a non-obvious path.
-- **Clarification** — `AskUserQuestion` when intended behavior or a design choice actually changes the verdict; don't invent the intent.
-- **Avoid** — editing or fixing code (this skill gates; fixing is `implement-feature` / `/code-review --fix`); rubber-stamping; raising required/critical findings without cited evidence; re-doing deep security (`code-security-review`) or requirements conformance (`requirements-qa`) here.
+- **Avoid** — rubber-stamping; re-doing deep security (`code-security-review`) or requirements conformance (`requirements-qa`) here.
 
 ## Validation — self-check before delivering the verdict
 

@@ -1,6 +1,6 @@
 ---
 name: retrospective
-description: "Run a retrospective on the current (or a past) Claude Code session — load the full transcript, analyze what actually happened, and propose concrete harness improvements that prevent bugs, remove questionable/unsafe moves, cut wasted work, and raise the odds the next solution meets the user's expectations on the first try with no follow-up change requests. Use when the user asks to reflect on, review, post-mortem, debrief, or learn from a session or how the agent worked; to figure out why a task needed several rounds of corrections; or to turn this session's lessons into durable rules, memories, skills, subagents, hooks, permissions, or evals. Triggers on 'retrospective', 'retro', 'post-mortem', 'debrief', 'what went wrong this session', 'how could you have done this better', 'reflect on this session', 'capture lessons', 'why did that take so many tries'. Grounded in modern agentic engineering practice and Claude Code's native feature set."
+description: "Use when asked to reflect on, review, post-mortem, debrief, or learn from an agent session — 'retrospective', 'retro', 'post-mortem', 'what went wrong this session', 'how could you have done this better', 'why did that take so many tries', 'capture lessons'. Loads the full session transcript, analyzes what actually happened, and proposes concrete harness improvements — rules, memories, skills, agents, hooks, permissions, evals — that prevent bugs, remove unsafe moves, cut wasted work, and raise the odds the next solution meets expectations on the first try with no follow-up change requests. Works on the current or a past session."
 metadata:
   version: "1.0.0"
   scope: "session-analysis-and-harness-improvement"
@@ -8,7 +8,7 @@ metadata:
 
 # Retrospective
 
-Turn a finished (or in-progress) Claude Code session into compounding improvement. Read the real transcript, find where the run leaked quality — bugs, unsafe or questionable moves, wasted effort, and above all moments where the user had to ask again because the first result missed the mark — root-cause each one, and propose the smallest durable change to the harness that stops it recurring.
+Turn a finished (or in-progress) agent session into compounding improvement. Read the real transcript, find where the run leaked quality — bugs, unsafe or questionable moves, wasted effort, and above all moments where the user had to ask again because the first result missed the mark — root-cause each one, and propose the smallest durable change to the harness that stops it recurring.
 
 This is a **feedback-loop skill**. Its product is not a recap; it is a short list of concrete, routed, prioritized changes the user can apply. The north star is the user's own goal: **a solution that meets expectations with no additional change requests.** Every correction round in a transcript is evidence the harness let the model guess instead of know — find the missing piece and encode it.
 
@@ -25,10 +25,10 @@ This is a **feedback-loop skill**. Its product is not a recap; it is a short lis
 
 ### 1. Locate and extract the session
 
-Default target is the **current** session. Run the extractor from the project's working directory:
+Default target is the **current** session. Run the extractor from the project's working directory — it lives in this skill's own `scripts/` dir, so resolve the path from wherever the skill is installed (e.g. `~/.claude/skills/retrospective/` or `~/.cursor/skills/retrospective/`):
 
 ```bash
-python3 ~/.claude/skills/retrospective/scripts/analyze_session.py
+python3 <this-skill-dir>/scripts/analyze_session.py
 ```
 
 It auto-selects the newest transcript for the current cwd and prints a structured JSON summary (tools used, skills invoked, genuine user prompts, tool errors, file rework, token/cache metrics, correction candidates). Useful flags:
@@ -62,7 +62,7 @@ For every confirmed finding, identify the **missing component** using the framew
 
 ### 5. Route each fix to the right surface
 
-Map the fix to a concrete Claude Code mechanism — see [references/claude-code-capabilities.md](references/claude-code-capabilities.md):
+Map the fix to a concrete harness mechanism — Claude Code surfaces below (see [references/claude-code-capabilities.md](references/claude-code-capabilities.md)); on Cursor the analogs are `.cursor/rules/`, memories, skills, and hooks:
 
 - Durable rule / preference → **CLAUDE.md** or a file in **rules/**.
 - Durable fact about the user/project/feedback → **memory** (`~/.claude/projects/<slug>/memory/` + `MEMORY.md`), following the memory spec.
@@ -71,7 +71,7 @@ Map the fix to a concrete Claude Code mechanism — see [references/claude-code-
 - Mechanical invariant (auto-format, block a footgun, reduce permission prompts) → **settings.json hooks / permissions**, applied via the `update-config` skill.
 - Missing capability → an **MCP server / tool**.
 - Regression guard → an **eval / test fixture**.
-- Better in-session habit → a **workflow note** (plan mode, TodoWrite, parallel calls, `/code-review` before done).
+- Better in-session habit → a **workflow note** (plan mode, todo tracking, parallel calls, a review pass before done).
 
 ### 6. Write the report
 

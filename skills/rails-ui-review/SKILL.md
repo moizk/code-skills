@@ -1,19 +1,6 @@
 ---
 name: rails-ui-review
-description: >-
-  Visually review a Rails app's UI by booting a throwaway instance in
-  RAILS_ENV=test on a free port, seeding arbitrary users and data for the
-  session, driving a headless browser to screenshot the real pages, and
-  assessing the rendered result against the change or design. Use after a UI
-  change to confirm it actually renders correctly — layout, spacing, states
-  (empty/error/long-content), responsive widths, and console/JS errors — not
-  just that specs pass. Triggers on "review the UI", "how does this look in the
-  browser", "screenshot the app", "does this page render correctly", "visual
-  review", "check the design in a real browser". Catches what content-only
-  system specs miss (unstyled pages, broken layout, 500s on un-tested views).
-  NOT for confirming a feature works mechanically (use verify), just launching
-  the app for the user (use run), backend-only changes with no visible surface,
-  or production — this runs the disposable test environment only.
+description: "Use after a UI change in a Rails app to confirm the page actually renders correctly — layout, spacing, empty/error/long-content states, responsive widths, console/JS errors — not just that specs pass. 'Review the UI', 'how does this look in the browser', 'screenshot the app', 'does this page render correctly', 'visual review'. Boots a throwaway instance in RAILS_ENV=test on a free port, seeds users and data for the session, drives a headless browser to screenshot the real pages, and assesses the render against the change or design. Catches what content-only system specs miss (unstyled pages, broken layout, 500s on untested views). Not for confirming a feature works mechanically (use verify), backend-only changes with no visible surface, or production — it runs the disposable test environment only."
 ---
 
 # Rails UI Review
@@ -40,9 +27,9 @@ running server or polluting their dev data.
   long-content overflow, error/validation styling, responsive breakpoints.
 
 **Don't use** for: confirming a feature works end-to-end mechanically (use
-`verify`), simply launching the app for the user to click around (use `run`),
-pure backend/API/job changes with no visible output, or anything against
-production. This skill runs the **test** environment only.
+`verify`), simply launching the app for the user to click around (just start
+the dev server), pure backend/API/job changes with no visible output, or
+anything against production. This skill runs the **test** environment only.
 
 ## Why `RAILS_ENV=test` on a free port (the whole idea)
 
@@ -141,7 +128,9 @@ empty, one, two, and many** (enough rows to fill or overflow its panel) — and 
 looks fine even when the panel is clipped one row down; the clip only appears when the list is
 long. (This is exactly how a clipped dropdown ships green: the review seeded a short list.)
 
-A reusable template is at the end of this skill.
+A reusable Ferrum template is in
+[references/ferrum-template.md](references/ferrum-template.md) — size its wide
+pass ≥1680px and adapt its selectors to the app's markup.
 
 ### 6. Review the screenshots
 **Read each PNG** (the Read tool renders images) and judge it against the change
@@ -204,102 +193,6 @@ to the port.
   error.
 - **Clean up.** Stop the server and reset the test DB; a leftover server holds
   the port and stale seed rows break later test runs.
-
-## Worked example — TMS-Hub (this repo)
-Bundled assets (webpack + sass CLI), Devise form login, Ferrum present.
-
-```bash
-# 1. assets + test DB
-yarn build && yarn build:css
-RAILS_ENV=test bin/rails db:prepare
-
-# 2. free port + background server
-PORT=$(ruby -e 'require "socket"; s=TCPServer.new("127.0.0.1",0); print s.addr[1]; s.close')
-RAILS_ENV=test bin/rails server -p "$PORT" -b 127.0.0.1   # run in background
-
-# 3. seed the users + data you want to SEE this session
-RAILS_ENV=test bin/rails runner '
-  admin = User.create!(email: "ui-admin@example.test", password: "password123",
-                       first_name: "UI", last_name: "Admin", role: :admin)
-  # member tiers are driven by imis_member_type: m=>member, a/a_h=>in_training, p=>non_member
-  member = User.create!(email: "ui-member@example.test", password: "password123",
-                        first_name: "Mem", last_name: "Ber", imis_member_type: "m")
-  product = PaymentProducts::CreateProductService.call(attributes: {
-    title: "2025 Annual Meeting OnDemand", description: "All sessions.", status: "active",
-    member_price: "750", non_member_price: "1100", in_training_price: "375" }).payload
-  puts "ADMIN ui-admin@example.test / password123"
-  puts "PRODUCT /admin/payment_products/#{product.slug}"
-'
-```
-
-Auth specifics: login form at `/users/sign_in`, fields `user[email]` /
-`user[password]`. Admin area requires `role: :admin` (or `imis_member_type:
-"staff"`). Member-tier pricing keys off `imis_member_type`. Cuprite driver config
-to mirror lives in `spec/support/cuprite.rb` (window 1400×1400, `no-sandbox`).
-(There is also a secret provisioning route `/imis-signup-test/:slug`, but direct
-seeding above is simpler.)
-
-## Ferrum screenshot template (pure Ruby; adapt per review)
-Run with `RAILS_ENV=test bin/rails runner ui_review.rb` (Ferrum is bundled) or
-`ruby` with `BASE`/`PORT` in the env. Saves PNGs to `tmp/ui_review/` for you to Read.
-
-```ruby
-require "ferrum"; require "fileutils"
-BASE = ENV.fetch("BASE", "http://127.0.0.1:#{ENV.fetch('PORT')}")
-OUT  = "tmp/ui_review"; FileUtils.mkdir_p(OUT)
-b = Ferrum::Browser.new(headless: true, window_size: [1400, 1400],
-                        browser_options: { "no-sandbox": nil }, process_timeout: 20)
-def shot(b, name, full: true) b.screenshot(path: "tmp/ui_review/#{name}.png", full: full); puts "shot #{name}" end
-
-# scroll the full height so lazy-loaded content + sticky/footer elements render, then back to top
-def scroll_through(b)
-  b.execute("window.scrollTo(0, document.body.scrollHeight)"); b.network.wait_for_idle rescue nil
-  b.execute("window.scrollTo(0, 0)")
-end
-# click each match (modals, dropdowns, accordions, tabs), shoot the opened state, then close with Esc
-def open_each(b, name, selector)
-  b.css(selector).first(6).each_with_index do |el, i|
-    (el.click rescue next); b.network.wait_for_idle rescue nil
-    shot(b, "#{name}-open-#{i}"); b.keyboard.type(:Escape) rescue nil
-  end
-end
-# hover each match (tooltips/popovers) and shoot the revealed state
-def hover_each(b, name, selector)
-  b.css(selector).first(6).each_with_index { |el, i| (el.hover rescue next); shot(b, "#{name}-tip-#{i}") }
-end
-
-# --- log in via Devise form (skip for public pages) ---
-b.goto("#{BASE}/users/sign_in")
-b.at_css('input[name="user[email]"]').focus.type(ENV.fetch("EMAIL", "ui-admin@example.test"))
-b.at_css('input[name="user[password]"]').focus.type(ENV.fetch("PASSWORD", "password123"))
-b.at_css('form input[type="submit"], form button[type="submit"]').click
-b.network.wait_for_idle rescue nil
-
-# --- visit the pages under review (edit this list) ---
-{ "index" => "/admin/payment_products",
-  "new"   => "/admin/payment_products/new" }.each do |name, path|
-  b.goto("#{BASE}#{path}")
-  b.network.wait_for_idle rescue nil
-  shot(b, name)
-  scroll_through(b); shot(b, "#{name}-bottom")
-  # reveal interactive content — ADAPT these selectors to the app's markup (Bootstrap/Stimulus/headless/etc.)
-  open_each(b,  name, "[data-bs-toggle='modal'], [data-toggle='modal'], [aria-haspopup='dialog'], dialog ~ [data-action*='modal']")
-  open_each(b,  name, ".dropdown-toggle, [data-bs-toggle='dropdown'], [aria-haspopup='menu'], details > summary")
-  hover_each(b, name, "[data-bs-toggle='tooltip'], [data-toggle='tooltip'], [aria-describedby], [title]")
-  errs = b.evaluate("window.__jsErrors || []") rescue []
-  warn "JS errors on #{name}: #{errs}" if errs && !errs.empty?
-end
-
-# --- a narrow viewport to check responsive ---
-b.resize(width: 480, height: 1000); b.goto("#{BASE}/admin/payment_products")
-b.network.wait_for_idle rescue nil; shot(b, "index-mobile")
-b.quit
-```
-Then **Read** `tmp/ui_review/*.png` and assess — including the `-bottom`, `-open-*`,
-and `-tip-*` shots, so deferred and interactive content is actually reviewed. The
-`open_each`/`hover_each`/`scroll_through` helpers above surface modals, dropdowns,
-tooltips, and below-the-fold content; **tune their selectors to the app's own
-markup** (use `b.evaluate("...")` to toggle a view or trigger a state before a shot).
 
 ## Validation — self-check before reporting
 - [ ] Assets were built (or it's an importmap app) — an unstyled page was ruled

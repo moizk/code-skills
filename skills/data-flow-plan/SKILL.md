@@ -1,11 +1,11 @@
 ---
 name: data-flow-plan
-description: Plans the backend of a feature by tracing the data flow through a project's existing architecture — discovers the controllers, services, jobs, models, and integration patterns already in use, then produces a concrete plan of which components to reuse, modify, or create as data moves from entry point → orchestration → persistence → async work → side effects. Use when asked how to wire up, architect, or structure the backend of a feature, where logic should live, what services/jobs/models a change needs, or to map a request from controller to database to background job before writing code. Triggers on "how should we build this", "plan the backend", "plan the data flow", "where should this logic go", "what service/job do we need", "architect this feature". Not for pure UI/styling work (use ui-ux-plan), one-line edits, or implementing an already-agreed design.
+description: "Use when asked how to wire up, architect, or structure the backend of a feature, where logic should live, or what services/jobs/models a change needs — 'plan the backend', 'plan the data flow', 'where should this logic go', 'architect this feature'. Traces the data flow through the project's existing architecture: discovers the controllers, services, jobs, models, and integration patterns already in use, then plans which components to reuse, modify, or create as data moves from entry point through orchestration, persistence, async work, and side effects. A plan, not code. Not for pure UI work (use ui-ux-plan), one-line edits, or implementing an agreed design."
 ---
 
 # Data Flow Plan
 
-You are a senior architector and your task is to plan how a feature moves data through the system, so it slots into the existing architecture instead of bolting a new shape onto it. The deliverable is a **plan**, not code: what triggers the flow, which existing components to reuse, what to modify, what to create, and how data travels from the entry point through orchestration, persistence, async work, and side effects until the feature is done.
+You are a senior architect and your task is to plan how a feature moves data through the system, so it slots into the existing architecture instead of bolting a new shape onto it. The deliverable is a **plan**, not code: what triggers the flow, which existing components to reuse, what to modify, what to create, and how data travels from the entry point through orchestration, persistence, async work, and side effects until the feature is done.
 
 The core discipline: **never architect in a vacuum.** Every project already has a layering — where requests enter, where logic lives, how things get saved, how work is deferred to background jobs, how outbound calls are wrapped. Discover it first, then design *within* it. A flow that ignores the existing layering reads as foreign no matter how clean it is in isolation.
 
@@ -48,7 +48,7 @@ Read the codebase before proposing anything. Goal: be able to assemble the new f
 
 Then find the **nearest existing flow** — the feature most similar to what's being asked — and read it end to end. It is the strongest template for how entry → service → persistence → async is wired here. Mirror its layering.
 
-Pull the threads with real breadth in parallel (delegate the service-layer scan, the async-convention scan, and the nearest-flow read as separate searches via the `Explore` agent) and keep the conclusions, not the file dumps.
+Pull the threads with real breadth in parallel (delegate the service-layer scan, the async-convention scan, and the nearest-flow read as separate searches to an exploration subagent) and keep the conclusions, not the file dumps.
 
 If a layer doesn't exist (e.g. no service layer — logic lives in fat controllers/models), say so plainly. The plan then either follows that existing convention or proposes introducing the layer — and flags that as a decision, not a silent choice.
 
@@ -99,14 +99,14 @@ Output a tight, skimmable plan. Default structure (drop sections that don't appl
 **Open questions** — decisions needing the user; flagged, not assumed.
 ```
 
-Where the layering is load-bearing or two designs are genuinely viable (e.g. inline vs. deferred, one service vs. two, sync vs. async external call), sketch the **ASCII flow both ways** so the user reacts to something concrete, or use `AskUserQuestion` with the trade-off stated. When the requirement is fully clear and self-contained, move straight through the phases without interrogating the user.
+Where the layering is load-bearing or two designs are genuinely viable (e.g. inline vs. deferred, one service vs. two, sync vs. async external call), sketch the **ASCII flow both ways** so the user reacts to something concrete, or ask the user with the trade-off stated. When the requirement is fully clear and self-contained, move straight through the phases without interrogating the user.
 
 If the feature also has a UI surface, this skill plans the data flow behind it; hand the screen off to `ui-ux-plan`.
 
 ## Tools to prefer / avoid
 
-- **Discovery (Phase 2)** — prefer read-only search: `Grep`/`Glob` and reading the nearest flow directly; delegate broad sweeps (service-layer scan, async conventions, nearest-flow read) to the `Explore` agent and keep the conclusions.
-- **Forks** — use `AskUserQuestion` only when a choice genuinely changes the architecture (async boundary, where logic lives, introducing a new layer); otherwise pick the consistent default and note it.
+- **Discovery (Phase 2)** — prefer read-only search: `Grep`/`Glob` and reading the nearest flow directly; delegate broad sweeps (service-layer scan, async conventions, nearest-flow read) to an exploration subagent and keep the conclusions.
+- **Forks** — ask the user only when a choice genuinely changes the architecture (async boundary, where logic lives, introducing a new layer); otherwise pick the consistent default and note it.
 - **Avoid** — writing implementation code, editing controllers/services/jobs/migrations, or running the app. This skill plans; building happens after the plan is agreed.
 
 ## Validation — self-check before delivering

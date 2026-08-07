@@ -1,6 +1,6 @@
 ---
 name: ai-features
-description: "Patterns for building product features that call external AI APIs — OpenAI (chat, embeddings), Whisper / speech-to-text, ElevenLabs / text-to-speech, vision. Use whenever you add, integrate, or call one of these to transcribe, summarize, generate, embed, classify, or synthesize — and ESPECIALLY when the input or the output may be larger than the model's context window or the endpoint's size limit. Covers measuring payloads, the two ways to make oversized work fit (split-and-combine vs. reduce-input), per-provider limits, and engineering the calls."
+description: "Use when adding, integrating, or calling external AI APIs — OpenAI chat/embeddings, Whisper speech-to-text, ElevenLabs or OpenAI text-to-speech, vision — to transcribe, summarize, generate, embed, classify, or synthesize; especially when the input or output may exceed the model's context window or an endpoint's size limit — 'add transcription', 'summarize long documents', 'chunk this for embeddings'. Covers measuring payloads, split-and-combine vs reduce-input strategies, per-provider limits and gotchas, and engineering the calls (jobs, retries, idempotency, cost)."
 ---
 
 # Building features with AI APIs

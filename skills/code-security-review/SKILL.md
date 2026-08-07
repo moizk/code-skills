@@ -1,6 +1,6 @@
 ---
 name: code-security-review
-description: Reviews a code change as an application-security engineer gating a deploy — establishes the change's attack surface and trust boundaries FIRST, then audits the diff against the standard vulnerability classes (injection, authn/authz, secrets, crypto, SSRF, deserialization, sensitive-data exposure, dependencies, config/infra), confirms each finding is actually exploitable, and returns a ship / ship-with-fixes / do-not-ship verdict with risk-ranked, evidence-backed findings. This is the security-safety layer, not the correctness or conformance layer: it answers "is this safe to deploy". Use when asked to security-review a change, check a diff/PR for vulnerabilities, threat-model a change, or decide whether code is safe to ship — "is this safe to deploy", "security review", "any vulnerabilities here", "threat model this", "appsec sign-off". Reports and gates; it does not edit code. Not for general correctness bugs or cleanups (use code-review-and-quality), business-requirements conformance (use requirements-qa), or running the app (use verify).
+description: "Use when asked to security-review a change, check a diff/PR for vulnerabilities, threat-model a change, or decide if code is safe to deploy — 'security review', 'any vulnerabilities here', 'is this safe to ship', 'appsec sign-off'. Reviews the change like an application-security engineer gating a deploy: maps the attack surface and trust boundaries first, audits the standard vulnerability classes, confirms each finding is actually exploitable, and returns a ship / ship-with-fixes / do-not-ship verdict with risk-ranked, evidence-backed findings. Reports and gates; does not edit code. Not for correctness bugs (use code-review-and-quality), requirements conformance (use requirements-qa), or running the app (use verify)."
 metadata:
   version: "1.0.0"
 ---
@@ -29,7 +29,7 @@ A change can pass `code-review-and-quality` (clean, correct) and `requirements-q
 - General correctness bugs or cleanup → `code-review-and-quality`.
 - Whether the change delivers the business requirement → `requirements-qa`.
 - Confirming the app mechanically runs → `verify`.
-- Writing or fixing the code → `implement-feature` / `code-review --fix`. This skill **reports and gates; it does not edit code.**
+- Writing or fixing the code → `implement-feature`. This skill **reports and gates; it does not edit code.**
 
 This skill **reviews only**. Do not run exploits, write attack payloads against live systems, or perform destructive testing — reason about exploitability from the code, and at most describe a proof-of-concept in the report.
 
@@ -108,15 +108,15 @@ Output a tight, skimmable report:
 **To verify** — items that need a human/tool to confirm (can't determine from the code alone); flagged, not assumed.
 ```
 
-Scale the report to the change — a one-line config tweak gets a few lines, a new endpoint gets the full surface map. When the verdict hinges on an unanswered question (intended exposure, who can reach a path, whether a control exists elsewhere), the verdict is **Blocked on clarification**, not a guess — use `AskUserQuestion` when the answer changes the verdict.
+Scale the report to the change — a one-line config tweak gets a few lines, a new endpoint gets the full surface map. When the verdict hinges on an unanswered question (intended exposure, who can reach a path, whether a control exists elsewhere), the verdict is **Blocked on clarification**, not a guess — ask the user when the answer changes the verdict.
 
 ## Tools to prefer / avoid
 
-- **Context & diff** — `git diff`/`git log`, `Grep`/`Glob`/`Read` to trace untrusted input from entry point to sink and to find where existing controls live. Read `CLAUDE.md` and any security docs/SAST config for the project's standard.
-- **Broad sweeps** — delegate "find every place this input is used" / "every endpoint that touches this table" to the `Explore` agent; keep the conclusions plus the evidence locations.
-- **Dependency & known-vuln checks** — use the project's audit tooling (e.g. `npm audit`, `bundle audit`, `pip-audit`) or `WebSearch` for a CVE on a specific added dependency/version when it bears on the verdict.
-- **Clarification** — `AskUserQuestion` when intended exposure or an off-diff control actually changes the verdict; don't invent the threat model.
-- **Avoid** — editing or fixing code (this skill gates; fixing is `implement-feature`/`code-review --fix`); running exploits or destructive/active attacks against live systems; raising critical/high findings without a traced, evidenced path; re-reviewing correctness already in `code-review-and-quality`'s lane.
+Shared practice for all lenses (evidence discipline, broad sweeps, clarification, report-only) — [../_shared/review-practice.md](../_shared/review-practice.md). Specific to this lens:
+
+- **Tracing** — follow untrusted input from entry point to sink and find where existing controls live; read any security docs/SAST config for the project's standard.
+- **Dependency & known-vuln checks** — the project's audit tooling (e.g. `npm audit`, `bundle audit`, `pip-audit`) or a web search for a CVE on a specific added dependency/version when it bears on the verdict.
+- **Avoid** — running exploits or destructive/active attacks against live systems; raising critical/high findings without a traced, evidenced path; re-reviewing correctness already in `code-review-and-quality`'s lane.
 
 ## Validation — self-check before delivering the verdict
 

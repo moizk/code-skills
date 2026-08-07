@@ -1,6 +1,6 @@
 ---
 name: implementation-plan
-description: Turns a decided feature design into a concrete, executable implementation plan — reads the actual code that will change, names the real files/classes/methods, and sequences the work into ordered, independently-verifiable steps with a test plan, migrations, risks, and unknowns. This is the lowest-altitude planning skill: the senior developer's work breakdown right before touching code. Use when the architecture and UI are decided (or trivial) and you need the concrete how — which files, which methods, what order, what tests. Triggers on "plan the implementation", "how would you build this", "break this into steps", "make a build plan", "plan my work on this", "what's the step-by-step". Not for deciding backend architecture (use data-flow-plan), screen/UI design (use ui-ux-plan), fuzzy intent (use interview-me / idea-refine), or one-line edits (just make them).
+description: "Use when architecture and UI are decided (or trivial) and you need the concrete how — which files, which methods, what order, what tests — 'plan the implementation', 'break this into steps', 'make a build plan', 'plan my work on this', 'what's the step-by-step'. Produces an executable implementation plan like a senior developer's work breakdown right before coding: reads the actual code that will change, names the real files/classes/methods, and sequences ordered, independently-verifiable steps with a test plan, migrations, risks, and unknowns. Not for deciding backend architecture (use data-flow-plan), screen/UI design (use ui-ux-plan), fuzzy intent (use interview-me / idea-refine), or one-line edits (just make them)."
 ---
 
 # Implementation Plan
@@ -45,7 +45,7 @@ Read the real code you'll modify. This discovery is **more granular** than the s
 4. **Mechanical surfaces the change touches** — migrations, schema, seeds, config, feature flags, env vars, i18n/locale files, serializers, routes. Note the project's pattern for each you'll need.
 5. **Constraints and blast radius** — callers of the methods you'll edit, public interfaces / API contracts, shared state, background jobs that read the same data, backward-compatibility needs. These decide what's safe to change in place vs. what needs a compatibility shim.
 
-Delegate broad sweeps to the `Explore` agent (find-the-callers, find-the-nearest-change, test-convention scan) and keep the **conclusions plus the real signatures**, not the file dumps. If something you assumed doesn't exist or doesn't look the way the design assumed, surface it — that's a finding, not a detail to paper over.
+Delegate broad sweeps to an exploration subagent (find-the-callers, find-the-nearest-change, test-convention scan) and keep the **conclusions plus the real signatures**, not the file dumps. If something you assumed doesn't exist or doesn't look the way the design assumed, surface it — that's a finding, not a detail to paper over.
 
 ### Phase 3 — Sequence the work
 
@@ -95,14 +95,14 @@ Output a tight, skimmable, executable plan. Default structure (drop sections tha
 **Open questions** — decisions needing the user; flagged, not assumed.
 ```
 
-When two implementation orders or approaches are genuinely viable (e.g. add-column-then-backfill vs. dual-write, refactor-first vs. add-alongside), state the trade-off — sketch both step sequences briefly, or use `AskUserQuestion` with concrete options. When the path is clear and self-contained, move straight through the phases without interrogating the user.
+When two implementation orders or approaches are genuinely viable (e.g. add-column-then-backfill vs. dual-write, refactor-first vs. add-alongside), state the trade-off — sketch both step sequences briefly, or ask the user with concrete options. When the path is clear and self-contained, move straight through the phases without interrogating the user.
 
 If the change has both a backend and a UI surface, this skill sequences the build; defer architecture decisions to `data-flow-plan` and screen design to `ui-ux-plan` rather than re-deciding them here.
 
 ## Tools to prefer / avoid
 
-- **Discovery (Phase 2)** — prefer read-only search: `Grep`/`Glob`, `git log`/`git blame` on the nearest analogous change, and reading the target files directly. Delegate broad sweeps (find-the-callers, nearest-change, test-convention scan) to the `Explore` agent and keep the conclusions plus real signatures.
-- **Forks** — use `AskUserQuestion` only when a choice genuinely changes the plan (build order, refactor-first vs. add-alongside, migration strategy); otherwise pick the consistent default and note it.
+- **Discovery (Phase 2)** — prefer read-only search: `Grep`/`Glob`, `git log`/`git blame` on the nearest analogous change, and reading the target files directly. Delegate broad sweeps (find-the-callers, nearest-change, test-convention scan) to an exploration subagent and keep the conclusions plus real signatures.
+- **Forks** — ask the user only when a choice genuinely changes the plan (build order, refactor-first vs. add-alongside, migration strategy); otherwise pick the consistent default and note it.
 - **Avoid** — writing implementation code, editing files/migrations, or running the app. This skill plans; building happens after the plan is agreed.
 
 ## Validation — self-check before delivering
