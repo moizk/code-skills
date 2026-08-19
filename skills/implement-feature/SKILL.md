@@ -103,6 +103,8 @@ Risks & follow-ups — rollback notes, deferred items, opportunities noted but n
 
 Commit, push, branch, or open a PR **only when explicitly asked**. Default is to leave the change in the working tree with the evidence above.
 
+If the change altered anything the repo documents — a contract, default, limit, flow, permission, config key, or a capability that came or went — say so in the handoff and point at `docs-update` as the closing pass. Don't write the docs here; documenting what shipped is a separate pass against the real diff, and it also owns the plan/epic checkpoint and Status bookkeeping.
+
 ## Tools to prefer / avoid
 
 - **Discovery** — `Grep`/`Glob`, `git log`/`git blame` on the nearest analogous change, and reading target files directly. Delegate broad sweeps to an exploration subagent; keep conclusions plus real signatures.

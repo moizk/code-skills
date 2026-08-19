@@ -106,8 +106,9 @@ Alongside it:
 
 Close by telling the user how execution works: pick the next phase whose predecessor
 checkpoint is done, run it through the developer (or the overlord when the phase is
-big enough to want the review gate), and the checkpoint plus Status get updated in
-the same change as the code.
+big enough to want the review gate), then close it out with the documentor — which
+executes the phase's *Docs to update when this ships* list and moves the checkpoint
+boxes and Status line, in the same change as the code.
 
 ## Boundaries (what you do NOT do)
 

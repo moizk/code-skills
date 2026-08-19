@@ -43,10 +43,13 @@ is the input to the next stage.
 | 4 | Build plan | `implementation-plan` | implementation plan |
 | 5 | Implementation | `implement-feature` | working code + tests + evidence |
 | 6 | Review gate | `code-review-and-quality`, `code-security-review`, `requirements-qa`, **+ `rails-ui-review` for any visible surface** | consolidated verdict + findings |
+| 7 | Docs pass | `docs-update` | reconciled docs + plan/epic bookkeeping |
 
 Stages 2 and 3 are conditional on what the feature touches — a pure-backend change
 skips `ui-ux-plan`; a pure-UI change skips `data-flow-plan`. Decide from the PM
-brief; when unsure whether a stage applies, **ask the user**. For stage 1, skip
+brief; when unsure whether a stage applies, **ask the user**. Stage 7 runs **after
+the gate passes** — it documents what actually shipped, so it cannot run against code
+that's still being revised. For stage 1, skip
 `interview-me` when intent is already unambiguous — and either way, **you write
 stage 1's artifact**: when the skills finish, synthesize their confirmed intent and
 refined one-pager into `01-pm-brief.md` in the run dir (the skills produce the raw
@@ -73,6 +76,25 @@ the stage-6 gate MUST include a `rails-ui-review` pass. Always.**
   weren't built or a stylesheet isn't bundled for that audience — a real finding.)
 - **The only skip** is a pure backend/API/job change with no visible output —
   state the skip and the reason.
+
+## Docs pass (stage 7 — the closing stage)
+
+A run isn't finished when the review approves; it's finished when the repo stops
+describing an app that no longer exists. **Once stage 6 is an approve, run
+`docs-update` inline** as the last stage, pointed at what actually shipped.
+
+- Give it the **real diff** plus the run's plan files, and the plan/epic doc if the run
+  came from one — its *Docs to update when this ships* list is the starting work order.
+- It owns the **bookkeeping**: the plan phase's checkpoint boxes, the plan's **Status**
+  line, an epic slice's **Status → done**, and the changelog/ADR entry if the repo
+  keeps those. That's why this stage, not stage 6, closes the loop back to the planner.
+- **"Nothing to update" is a valid outcome** — a pure internal refactor changes nothing
+  a reader cares about. Take the reasoned no; don't push for invented pages.
+- It does **not** fix code. If it reports that the docs describe behavior the code
+  doesn't implement, that's a finding: decide with the user whether it's a bug (loop
+  back to stage 5) or a stale page.
+- Fold its report into the final summary: pages updated, pages left alone, anything
+  needing a human (screenshots, diagrams, unverifiable facts).
 
 ## Artifacts, the run dir, and the user's request
 
@@ -103,10 +125,11 @@ already grounded and the phase's scope is already decided — read the plan and 
 file it links, confirm the previous phase's checkpoint is checked (or explicitly
 skipped in the plan), and treat the phase's *Goal* and *Checkpoint* as stage 1's
 brief. Build **that phase only**. Its checkpoint is a hard requirement of the stage-6
-gate: nothing ships until every box is verifiably true. When it passes, check the
-boxes, update the plan's **Status** line, and update the docs listed under *Docs to
-update when this ships* — in the same change as the code. Do not roll into the next
-phase. No plan doc → ignore this.
+gate: nothing ships until every box is verifiably true. When it passes, the stage-7
+docs pass checks the boxes, updates the plan's **Status** line, and updates the docs
+listed under *Docs to update when this ships* — in the same change as the code, so
+point it at the plan explicitly. Do not roll into the next phase. No plan doc →
+ignore this.
 
 ## Figma / design intake (before stage 2)
 
@@ -165,7 +188,8 @@ Give concrete options and a recommendation; don't make the user author the answe
 
 After stage 6, act on the consolidated verdict:
 
-- **Approve** → done. Summarize what shipped (in the working tree) and follow-ups.
+- **Approve** → run **stage 7 (`docs-update`)**, then summarize what shipped (in the
+  working tree), what the docs pass changed, and the follow-ups.
 - **Changes required / do-not-ship** → run `implement-feature` again inline as a
   focused fix task, driven by the reviewer findings (each with `file:line` and
   severity) plus the plan docs to honor — then re-run the review skills on the
@@ -207,6 +231,9 @@ After stage 6, act on the consolidated verdict:
       image was saved and diffed against, per the artifacts reference.
 - [ ] The change passed the consolidated review, or the fix loop ran (max two
       cycles) and non-convergence was escalated.
+- [ ] After the approve, **stage 7 (`docs-update`) ran** against the real diff — docs
+      reconciled (or a reasoned "nothing to update"), and the plan checkpoint, Status
+      line, and epic slice status updated in the same change as the code.
 - [ ] The final summary reports what was built, the review verdict, open
       follow-ups, and where the artifacts live — grounded in actual stage outputs.
 - [ ] No outward/irreversible action was taken without explicit user approval.

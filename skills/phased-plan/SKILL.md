@@ -68,7 +68,7 @@ You stop at the doc. Tell the user the loop, and include a ready-to-paste execut
 
 > Read `docs/plans/<slug>.md` and every file it links in Phase N. Confirm the previous phase's checkpoint is checked (or explicitly skipped in the plan). Implement Phase N only. When done: check the checkpoint boxes, update the Status line, and update the docs listed under "Docs to update when this ships" — in the same change as the code. Do not start Phase N+1.
 
-Executing a phase is `implement-feature`'s job (or a full `overlord` run when the phase is large enough to want the review gate). The plan's own maintenance rules — checkpoint checked in the same change as the code, Status kept current, operator steps distinguished from shipped code — live in the doc, not in this session.
+Executing a phase is `implement-feature`'s job (or a full `overlord` run when the phase is large enough to want the review gate), and the phase's *Docs to update when this ships* list is executed by `docs-update` once the code lands — that pass also checks the checkpoint boxes and moves the Status line. Write the list precisely enough to be a work order for it. The plan's own maintenance rules — checkpoint checked in the same change as the code, Status kept current, operator steps distinguished from shipped code — live in the doc, not in this session.
 
 ## Tools to prefer / avoid
 

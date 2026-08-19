@@ -19,12 +19,15 @@ a raw idea. The epic has already been sliced and the intent already established.
    **skipping or sharply shortening stage 1 by default**: the epic already
    established intent, and the per-slice brief stands in for the PM brief.
    Re-interview only if the brief leaves a genuine fork open.
-5. **Mark it done.** Once the slice passes the review gate, **update the epic
-   doc**: set the slice's **Status → done**, note what now works end to end, and
-   link any artifacts it produced. If the doc has a "Shipped so far" section,
-   append to it. Tell the user you updated the doc, and surface any new
-   cross-slice risk or re-slicing need the work revealed (don't silently edit the
-   plan beyond status).
+5. **Mark it done — in the stage-7 docs pass.** Once the slice passes the review
+   gate, the `docs-update` stage **updates the epic doc** alongside the product and
+   technical pages: set the slice's **Status → done**, note what now works end to
+   end, and link any artifacts it produced. If the doc has a "Shipped so far"
+   section, append to it. Point the stage at the epic doc explicitly so it isn't
+   missed. Tell the user the doc was updated, and surface any new cross-slice risk
+   or re-slicing need the work revealed (don't silently edit the plan beyond
+   status).
 
-The Status column is owned by this workflow: the overlord updates it as slices
-ship; the user only touches it for work done outside the pipeline.
+The Status column is owned by this workflow: the pipeline updates it as slices ship,
+in the docs stage and in the same change as the code; the user only touches it for
+work done outside the pipeline.

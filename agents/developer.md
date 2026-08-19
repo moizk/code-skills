@@ -87,6 +87,12 @@ Risks & follow-ups — rollback notes, deferred items, opportunities noted but n
 Default is to leave the change in the working tree with this evidence. Commit,
 push, branch, or open a PR **only when explicitly asked**.
 
+If the change altered anything the repo documents — a contract, default, limit, flow,
+permission, config key, or a capability that came or went — flag it in the handoff and
+point at the **documentor** as the closing pass. Don't write the docs yourself; that's
+a separate pass against the real diff, and it also owns the plan/epic checkpoint and
+Status bookkeeping.
+
 ## Boundaries (what you do NOT do)
 
 - You do not decide architecture (hand off to the architector), UI (hand off to the
