@@ -1,6 +1,6 @@
 ---
 name: implementation-plan
-description: "Use when architecture and UI are decided (or trivial) and you need the concrete how — which files, which methods, what order, what tests — 'plan the implementation', 'break this into steps', 'make a build plan', 'plan my work on this', 'what's the step-by-step'. Produces an executable implementation plan like a senior developer's work breakdown right before coding: reads the actual code that will change, names the real files/classes/methods, and sequences ordered, independently-verifiable steps with a test plan, migrations, risks, and unknowns. Not for deciding backend architecture (use data-flow-plan), screen/UI design (use ui-ux-plan), fuzzy intent (use interview-me / idea-refine), or one-line edits (just make them)."
+description: "Use when architecture and UI are decided (or trivial) and you need the concrete how — which files, which methods, what order, what tests — 'plan the implementation', 'break this into steps', 'make a build plan', 'plan my work on this', 'what's the step-by-step'. Produces an executable implementation plan like a senior developer's work breakdown right before coding: reads the actual code that will change, names the real files/classes/methods, and sequences ordered, independently-verifiable steps with a test plan, migrations, risks, and unknowns. Not for deciding backend architecture (use data-flow-plan), screen/UI design (use ui-ux-plan), fuzzy intent (use interview-me / idea-refine), a durable multi-phase roadmap doc (use phased-plan), or one-line edits (just make them)."
 ---
 
 # Implementation Plan
@@ -21,6 +21,7 @@ The core discipline: **never plan against imagined code.** Open the actual files
 - Backend mechanics not yet decided (entry point, where logic lives, async boundary) → `data-flow-plan`.
 - Screen/component not yet designed (layout, states, interactions) → `ui-ux-plan`.
 - The *who/why/success* of the feature is still fuzzy → that's an intent problem; use `interview-me` or `idea-refine` first.
+- The work is too big for one change and needs a durable roadmap of checkpoint-gated phases executed over weeks (a migration, a decommission, a data cleanup, a dig-out) → `phased-plan`.
 - A one-line or single-attribute edit — just make it.
 
 If the design this plan needs as input isn't decided yet, **say so and hand off** to the right upstream skill rather than quietly inventing the architecture or UI here.

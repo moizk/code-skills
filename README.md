@@ -10,7 +10,7 @@ in sync.
 |---|---|
 | `skills/<name>/SKILL.md` | Task playbooks (reviews, planning, Rails patterns, orchestration). Big skills keep detail in `references/` next to the SKILL.md. |
 | `skills/_shared/` | Reference docs shared by several skills (not a skill itself; never installed on its own). |
-| `agents/<name>.md` | Subagent role definitions (architector, designer, developer, product-manager, reviewer, teamlead). |
+| `agents/<name>.md` | Subagent role definitions (architector, designer, developer, planner, product-manager, reviewer, teamlead). |
 | `rules/<name>.md` | Code guidelines. No frontmatter = always applied; a `paths:` list scopes the rule to matching files. |
 | `CLAUDE.md` | Global preferences, synced to `~/.claude/CLAUDE.md`. |
 | `sync.sh` | Installs everything into both platforms. |

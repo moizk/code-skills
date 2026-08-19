@@ -84,8 +84,9 @@ resumes from after a compaction. **Read
 dir layout, the request/attachment anchoring rules (including design images for
 the visual review), and how to manage the shared context window.
 
-The lone `docs/` exception is an epic doc (`docs/epics/<slug>.md`) — an
-`epic-runner` deliverable you read and update, not pipeline scratch.
+The `docs/` exceptions are the two durable planning docs you read and update rather
+than treat as pipeline scratch: an epic doc (`docs/epics/<slug>.md`, from
+`epic-runner`) and a plan doc (`docs/plans/<slug>.md`, from `phased-plan`).
 
 ## Working from an epic doc
 
@@ -94,6 +95,18 @@ established — seed the run from the chosen slice's brief instead of a raw idea
 shorten stage 1, and update the slice's Status when it ships. **Follow
 [references/epic-workflow.md](references/epic-workflow.md).** No epic doc → ignore
 this.
+
+## Working from a plan doc phase
+
+If the run is **one phase of a plan doc** (`docs/plans/<slug>.md`), the problem is
+already grounded and the phase's scope is already decided — read the plan and every
+file it links, confirm the previous phase's checkpoint is checked (or explicitly
+skipped in the plan), and treat the phase's *Goal* and *Checkpoint* as stage 1's
+brief. Build **that phase only**. Its checkpoint is a hard requirement of the stage-6
+gate: nothing ships until every box is verifiably true. When it passes, check the
+boxes, update the plan's **Status** line, and update the docs listed under *Docs to
+update when this ships* — in the same change as the code. Do not roll into the next
+phase. No plan doc → ignore this.
 
 ## Figma / design intake (before stage 2)
 

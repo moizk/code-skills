@@ -1,6 +1,6 @@
 ---
 name: epic-runner
-description: "Use when a multi-part initiative, project, or epic is too big for one feature pipeline and needs splitting before any single feature is built — 'slice this epic', 'break this initiative into features', 'decompose this project', 'what are the slices'. Establishes the epic's why and non-goals, finds the shared foundation, cuts the work into a dependency-ordered DAG of independently-shippable vertical feature slices, and records it in docs/epics/<slug>.md. Slicing only — it does not build; you feed the epic doc back and run each slice through the overlord when ready. Runs in the main session, executing planning skills inline, not via sub-agents. Not for a single feature (use overlord) or one-line edits."
+description: "Use when a multi-part initiative, project, or epic is too big for one feature pipeline and needs splitting before any single feature is built — 'slice this epic', 'break this initiative into features', 'decompose this project', 'what are the slices'. Establishes the epic's why and non-goals, finds the shared foundation, cuts the work into a dependency-ordered DAG of independently-shippable vertical feature slices, and records it in docs/epics/<slug>.md. Slicing only — it does not build; you feed the epic doc back and run each slice through the overlord when ready. Runs in the main session, executing planning skills inline, not via sub-agents. Not for a single feature (use overlord), a phased dig-out of an existing system (use phased-plan), or one-line edits."
 ---
 
 # Epic Runner
@@ -17,6 +17,12 @@ dependency-ordered pieces, capture the shared shape, and hand back a doc that ma
 > Run in the main session and execute the planning skills **inline** so they can
 > ask the user directly — do not spawn sub-agents (they can't interact with the
 > user).
+
+Wrong shape for this skill: an **existing** system that has decayed and needs a
+sequential, checkpoint-gated dig-out (a migration, a decommission, a data cleanup)
+rather than a set of new capabilities. That's `phased-plan` — its phases are gated
+and ordered for safety (reversible before irreversible, evidence before deletion),
+where your slices are vertical features that could each ship on their own.
 
 ## Decompose the epic (coarse only)
 

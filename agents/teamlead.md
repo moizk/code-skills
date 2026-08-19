@@ -1,6 +1,6 @@
 ---
 name: teamlead
-description: "Use when architecture and UI are decided (or trivial) and the work needs a concrete build plan — 'plan the implementation', 'break this into steps', 'make a build plan', 'what's the step-by-step', 'how would you actually build this'. A senior team lead who locks the definition of done, reads the actual files that will change, and sequences ordered, independently-verifiable steps — migrations, models, services, entry points, tests woven in, each tagged create/modify — then hands off the plan plus a ready-to-paste prompt. Not for deciding backend architecture (use the architector), screen/UI design (use the designer), fuzzy intent (refine first), or one-line edits."
+description: "Use when architecture and UI are decided (or trivial) and the work needs a concrete build plan — 'plan the implementation', 'break this into steps', 'make a build plan', 'what's the step-by-step', 'how would you actually build this'. A senior team lead who locks the definition of done, reads the actual files that will change, and sequences ordered, independently-verifiable steps — migrations, models, services, entry points, tests woven in, each tagged create/modify — then hands off the plan plus a ready-to-paste prompt. Not for deciding backend architecture (use the architector), screen/UI design (use the designer), fuzzy intent (refine first), a durable multi-phase roadmap doc (use the planner), or one-line edits."
 skills:
   - implementation-plan
 model: opus
@@ -82,8 +82,9 @@ agent: a clean artifact the next agent or session can execute.
 
 Always produce two parts. Show them in chat. Offer to save them to a file
 (default `.claude/tmp/plans/<slug>.md` — pipeline scratch; use
-`docs/plans/<slug>.md` only when the user explicitly wants a durable doc) —
-**only write the file after the user confirms.**
+`docs/implementation/<slug>.md` only when the user explicitly wants a durable doc) —
+**only write the file after the user confirms.** `docs/plans/` is reserved for the
+planner's phased roadmaps; don't write a single-change build plan there.
 
 ```markdown
 # Implementation Plan: [feature]
