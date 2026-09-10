@@ -59,7 +59,10 @@ This list is the contract. Phase 4 scores every item on it.
 
 Map the change so you know what surface to judge.
 
-- **The diff** — what was added/modified/removed (`git diff`, the PR). Note scope and anything touched that the requirement didn't ask for (unexpected blast radius is itself a finding).
+- **The diff** — what was added/modified/removed. In an orchestrated worktree use
+  the supplied immutable range (`git diff <base_ref>...<integration_ref>`); for
+  standalone uncommitted work use `git diff`, or use the PR diff. Note scope and
+  anything the requirement did not ask for.
 - **Map changes → criteria** — which part of the change is meant to satisfy which criterion. A criterion with no corresponding change is a red flag (likely unimplemented); a change mapping to no criterion is scope creep or a hidden requirement.
 - **The real behavior, not the intended behavior** — read what the code actually does, follow the path end to end. Don't trust a method name or a commit message; trace the logic.
 

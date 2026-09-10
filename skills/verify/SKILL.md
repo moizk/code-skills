@@ -27,15 +27,20 @@ correctness of intent.
 1. **Discover the project's own commands.** The test/lint/build/boot commands come
    from the repo — README, `CLAUDE.md`/`AGENTS.md`, `Procfile`, `package.json`/
    `Gemfile`, CI config. Run the project's commands, not invented ones.
-2. **Scope to the change.** Run the tests for the touched surface first, then the
+2. **Honor the resource namespace.** In orchestration, apply the supplied database,
+   port, cache, and queue namespace to every command and confirm the project can
+   isolate each mutable resource. If it cannot, report
+   `resource isolation unavailable` before changing shared state so the
+   orchestrator can serialize this run.
+3. **Scope to the change.** Run the tests for the touched surface first, then the
    broader suite if it's cheap. For a runtime check, boot the app (or run the job /
    hit the endpoint) in a disposable way: test env, free port, seeded data — never
    against production or the developer's live data.
-3. **Exercise the claim.** Hit the endpoint, run the job, walk the path the change
+4. **Exercise the claim.** Hit the endpoint, run the job, walk the path the change
    added. A green suite plus a booted app that 500s on the changed route is a
    failure, not a pass.
-4. **Tear down.** Stop anything you started; leave no stray servers, ports, or
-   dirty state behind.
+5. **Tear down.** Stop anything you started and clean only this run's namespaced
+   resources; leave no stray servers, ports, databases, queues, or dirty state.
 
 ## Report (the deliverable)
 
@@ -56,5 +61,8 @@ command was merely started.
 
 - Run-and-report only: don't edit code to make a check pass — report the failure;
   fixing belongs to `implement-feature`.
-- Never run against production; never commit, push, or deploy.
+- In an orchestrated run, verify the assigned integration commit in the supplied
+  read-only worktree and return the evidence artifact. Do not create/switch
+  branches, commit, merge, push, deploy, or remove worktrees.
+- Never run against production.
 - Destructive commands (db resets, deletions) only in a disposable environment.

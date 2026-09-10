@@ -1,6 +1,6 @@
 ---
 name: figma-intake
-description: "Use when a feature comes with a Figma design that needs to feed a planning or implementation pipeline — 'I have a Figma design', 'extract this Figma', 'pull the design from Figma', 'feed this Figma into the pipeline'. Distills the design into a self-contained design spec (screenshots, component list, tokens/variables, Code Connect mappings) so downstream planners consume the spec as the visual source of truth instead of a bare Figma URL. Must run where the Figma MCP is available (the main session), not inside a sub-agent. Not for generating designs INTO Figma (use figma-generate-design) or implementing Figma directly to production code."
+description: "Use when a feature comes with a Figma design that needs to feed a planning or implementation pipeline — 'I have a Figma design', 'extract this Figma', 'pull the design from Figma', 'feed this Figma into the pipeline'. Distills the design into a self-contained design spec (screenshots, component list, tokens/variables, Code Connect mappings) so downstream planners consume the spec as the visual source of truth instead of a bare Figma URL. Must run in the top-level orchestrator where the Figma MCP is available, before isolated agents are dispatched. Not for generating designs INTO Figma (use figma-generate-design) or implementing Figma directly to production code."
 ---
 
 # Figma Intake
@@ -11,10 +11,11 @@ planner can treat as the visual source of truth. The point is to do the Figma
 reading *once, here*, and hand forward a clean spec — so a sub-agent (e.g. the
 `designer`) never needs to reach Figma itself.
 
-> **Runs where the Figma MCP lives — the main/top-level session.** Sub-agents
-> can't reliably reach the Figma MCP, and the mandatory figma-skill prerequisites
-> (`figma-use` before `use_figma`, etc.) apply. If you don't have the Figma tools,
-> stop and say so rather than guessing at the design.
+> **Runs where the Figma MCP lives — the top-level orchestrator, before the
+> designer worktree is dispatched.** Isolated agents can't reliably reach the
+> Figma MCP, and the mandatory figma-skill prerequisites (`figma-use` before
+> `use_figma`, etc.) apply. Persist the spec in the canonical run dir and pass its
+> path to the designer. If you don't have the Figma tools, stop rather than guess.
 
 ## When to use
 

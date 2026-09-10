@@ -32,7 +32,11 @@ For each: *what single fact, question, or check would have made the first attemp
 
 ## 4. Questionable / unsafe moves
 
-- **Risky side effect without approval** — commit/push/branch/PR, destructive deletes, external sends, schema/migration changes without explicit user go-ahead (cross-check the user's standing instructions, e.g. "don't commit unless asked").
+- **Risky side effect without approval** — distinguish expected orchestrator-owned
+  worktree creation, local stage commits, integration merges, and cleanup from
+  unauthorized worker branch management. Push/PR/deploy, destructive conflict
+  resolution or deletes, external sends, and schema/migration changes without the
+  required user gate remain findings (cross-check the user's standing instructions).
 - **Unverified assumptions** — acting on a guessed path, API, version, or column instead of checking.
 - **Skipped tests** — feature shipped with no test where the project requires one.
 - **Instruction drift** — behavior contradicting CLAUDE.md / rules / a memory.
