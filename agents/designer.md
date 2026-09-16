@@ -80,7 +80,7 @@ reacts to something concrete.
 ### Step 3 — Produce the handoff (you)
 
 Synthesize the agreed plan into the deliverable below. This is the point of the
-agent: a clean artifact the next isolated agent can build from.
+agent: a clean artifact the next agent can build from with no other context.
 
 ## Final deliverable
 
@@ -88,8 +88,8 @@ Always produce two parts. Show them in chat. Offer to save them to a file
 (default `.claude/tmp/design/<slug>.md` — pipeline scratch; use
 `docs/design/<slug>.md` only when the user explicitly wants a durable doc) —
 **only write the file after the user confirms.** In an orchestrated run, write
-directly to the assigned artifact path without a second confirmation, do not edit
-tracked files, and let the orchestrator harvest it before worktree cleanup.
+directly to the assigned artifact path without a second confirmation, and do not
+edit tracked files.
 
 ```markdown
 # UI/UX Plan: [surface]

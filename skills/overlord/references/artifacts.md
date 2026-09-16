@@ -11,10 +11,11 @@ scratch dir** in the project — not in `docs/`, not in tracked source:
 
 ```
 .claude/tmp/<feature-slug>/
-  manifest.json              # refs, worktrees, stage states, artifact index
+  manifest.json              # stage states and artifact index
   00-user-request.md         # the verbatim original prompt (see below)
+  00-baseline.md             # the tree's pre-run state (see below)
   attachments/               # every attached file/image, copied in
-  01-pm-brief.md             # harvested from the product-manager worktree
+  01-pm-brief.md
   02-ui-plan.md              # omit if no UI surface
   03-data-flow.md            # omit if no backend
   04-implementation-plan.md
@@ -33,26 +34,38 @@ scratch dir** in the project — not in `docs/`, not in tracked source:
 - Confirm the run dir is ignored with `git check-ignore`. If it is not, add
   `.claude/tmp/` to `.git/info/exclude` for this clone; do not edit the project's
   tracked ignore files merely to operate the pipeline.
-- Put linked worktree directories in a project-adjacent temporary root, not
-  inside the user's working tree or this run dir. Record every absolute path in
-  the manifest; remove it after successful integration.
 - When a planning skill offers to persist its artifact, point it **into this run
   dir**, not `docs/`.
 - These files are the **cross-agent contract and durable source of truth**. An
-  isolated agent receives only the files listed for its stage; it must not rely
-  on chat history or another agent's unstated conclusions.
+  agent receives only the paths listed for its stage; it must not rely on chat
+  history or another agent's unstated conclusions.
 - **Leave the repo clean.** Don't write pipeline scratch into `docs/` or tracked
   source. The lone exception is an **epic doc** (`docs/epics/<slug>.md`) — that's
   an `epic-runner` deliverable you *read and update*, not pipeline scratch. Only
   if the user explicitly wants a plan kept as a real deliverable do you copy it
   into `docs/`.
 
+## Baseline the tree before the first dispatch
+
+The run works directly in the user's tree, so the only way to attribute a diff to
+the pipeline is to know what was already there.
+
+- Record `git status` and the list of already-modified and untracked files in
+  `00-baseline.md` before any agent runs. Every later "what did this stage do"
+  question is answered against that list.
+- **Never revert, stash, discard, or overwrite those changes.** If the feature's
+  surface overlaps files the user already had in flight, say so and ask before a
+  stage touches them.
+- If files outside the pipeline's touch list change mid-run, stop and report it —
+  someone else is editing the tree, and silently building on top of that is how
+  work gets lost.
+
 ## The user's request & attachments — keep them in front of every stage
 
 The raw feature request (and anything attached to it) is the run's **ground
 truth**. Your plans are your *interpretation* of it — and every distillation
-silently drops detail. Isolated agents do not share conversation history, so
-anchor the source once and include it explicitly in every dispatch.
+silently drops detail. Sub-agents do not share conversation history, so anchor the
+source once and include it explicitly in every dispatch.
 
 - **Anchor the verbatim request once, at the start.** Save the user's full
   original prompt — including any inline pasted CSS, spec, copy, or data — to
@@ -96,68 +109,54 @@ transition. It records:
 {
   "run_id": "csv-export",
   "status": "planning",
-  "starting_branch": "main",
-  "base_ref": "<commit>",
-  "integration_branch": "agent-run/csv-export/integration",
-  "integration_worktree": "<absolute path>",
-  "artifact_root": "<absolute path to canonical .claude/tmp/csv-export>",
-  "worktree_root": "<absolute project-adjacent path>",
+  "artifact_root": "<absolute path to .claude/tmp/csv-export>",
+  "baseline": "00-baseline.md",
   "fix_cycle": 0,
   "stage_runs": [
     {
       "id": "01-pm-product-manager-a0",
       "status": "pending",
-      "branch": "agent-run/csv-export/01-pm-product-manager-a0",
-      "worktree": "<absolute path>",
-      "stage_artifact_root": "<absolute path inside this worktree>",
-      "input_artifacts": ["inputs/00-user-request.md"],
-      "output_artifacts": ["outputs/01-pm-brief.md"],
-      "resource_namespace": "csv_export_01_pm_a0",
-      "commit": null
+      "writes_to_tree": false,
+      "input_artifacts": ["00-user-request.md"],
+      "output_artifact": "01-pm-brief.md",
+      "files_changed": []
     }
   ]
 }
 ```
 
-Use explicit statuses: `pending`, `provisioning`, `running`, `blocked`, `failed`,
-`completed`, `completed/no_changes`, `integrated`, or `skipped`. Append a new
-`stage_runs` entry for every role, lens, retry, and fix cycle; never reuse a branch
-name or overwrite an earlier attempt. Record the exact integration commit reviewed
-by every stage-6 lens. `context.md` is a human-readable resume summary; the
-manifest is the machine-readable lifecycle record.
+Use explicit statuses: `pending`, `running`, `blocked`, `failed`, `completed`,
+`completed/no_changes`, `accepted`, or `skipped`. Append a new `stage_runs` entry
+for every role, lens, retry, and fix cycle; never reuse an id or overwrite an
+earlier attempt's artifact. Record the files each writing stage changed, so a
+later review or fix pass knows exactly what the run owns. `context.md` is a
+human-readable resume summary; the manifest is the machine-readable lifecycle
+record.
 
-## Crossing worktree boundaries
+## Handoff rules between stages
 
-- Create each stage branch from the current integration head and give its agent
-  the assigned worktree path. A worker must never create, merge, switch, or delete
-  branches or worktrees.
-- The canonical artifact root exists only in the starting worktree. Before
-  dispatch, copy the listed canonical artifacts into
-  `<stage_artifact_root>/inputs/`. The agent writes only to
-  `<stage_artifact_root>/outputs/`; after it exits, the orchestrator copies those
-  outputs back to the canonical root. `stage_artifact_root` must be under an
-  ignored path in that worktree; verify it with `git check-ignore` before
-  dispatch. Bare artifact names are never valid handoff paths.
-- Provision the worktree with the repo's documented setup commands before marking
-  it `running`. Reuse package-manager caches where supported, but do not assume
-  ignored dependencies, built assets, keys, or local config appear in a linked
-  worktree. Never read/copy secrets; ask before linking a required named local
-  config path.
-- Planning and review agents normally produce ignored scratch only. Before
-  removing their worktree, copy the required output artifact and useful logs into
-  the canonical run dir, validate them, and record them in the manifest.
-- Implementation and documentor agents produce both a scratch report and tracked
-  changes. Require a local stage commit, inspect it, then merge it into the
-  integration branch. The orchestrator performs the merge; the worker does not.
-- Run independent review lenses concurrently from the same recorded integration
-  commit. Give every lens a unique branch/worktree/artifact path. Their worktrees
-  are read-only with respect to product code.
-- Assign a unique disposable database and service namespace to every runtime
-  worktree. If the project cannot isolate a shared resource, record that fact and
-  serialize resource-mutating stages rather than risking a concurrent reset.
-- On failure or conflict, mark the stage blocked/failed and preserve its branch,
-  worktree, artifacts, and logs. Cleanup happens only after successful harvest
-  and integration.
-- Carry forward conclusions and source artifacts, not transcripts. If a stage
+- **Paths, not names.** A dispatch names the exact artifact paths the agent may
+  read and the single path it must write. Bare artifact names are never valid
+  handoff paths.
+- **One writer at a time.** Only one agent edits files at a time. Read-only stages
+  (review lenses, verification) may run concurrently with each other, never with a
+  writing stage.
+- **Read-only means read-only.** Planning, review, and verification agents produce
+  an artifact in the run dir and change nothing tracked. A tracked file touched by
+  one of them is a defect to explain and undo, not a change to accept.
+- **Inspect every writing stage's diff** before the next stage builds on it:
+  unexpected files, generated junk, debug output, secret-like content, unrelated
+  refactors, missing tests, anything outside the approved touch list. Out-of-scope
+  work goes back to the same agent to correct — the orchestrator does not clean up
+  silently and never discards work.
+- **Runtime stages share one tree**, so anything that boots the app uses the
+  project's test environment on a free port with a disposable test database, and
+  runs alone. Tear down servers and test resources afterward; never touch the dev
+  database.
+- **Never read or copy secrets.** If a documented local config file is required
+  and missing, ask for it by name.
+- **On failure, preserve everything.** Mark the stage blocked or failed, keep its
+  artifacts and logs, and report. Nothing is rolled back to "recover".
+- **Carry forward conclusions and source artifacts, not transcripts.** If a stage
   needs a user decision, return the question to the orchestrator; record the
   answer in `context.md` and the next dispatch.

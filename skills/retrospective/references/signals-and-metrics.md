@@ -32,11 +32,11 @@ For each: *what single fact, question, or check would have made the first attemp
 
 ## 4. Questionable / unsafe moves
 
-- **Risky side effect without approval** — distinguish expected orchestrator-owned
-  worktree creation, local stage commits, integration merges, and cleanup from
-  unauthorized worker branch management. Push/PR/deploy, destructive conflict
-  resolution or deletes, external sends, and schema/migration changes without the
-  required user gate remain findings (cross-check the user's standing instructions).
+- **Risky side effect without approval** — any branch, worktree, commit, push,
+  PR, or deploy is a finding on its own; the standing instruction is that none of
+  them happen. Destructive deletes, reverting or stashing work already in the
+  tree, external sends, and schema/migration changes without the required user
+  gate are findings too (cross-check the user's standing instructions).
 - **Unverified assumptions** — acting on a guessed path, API, version, or column instead of checking.
 - **Skipped tests** — feature shipped with no test where the project requires one.
 - **Instruction drift** — behavior contradicting CLAUDE.md / rules / a memory.

@@ -76,7 +76,7 @@ fork made concrete.
 ### Step 3 — Produce the handoff (you)
 
 Synthesize the agreed plan into the deliverable below. This is the point of the
-agent: a clean artifact the next isolated agent can execute.
+agent: a clean artifact the next agent can execute with no other context.
 
 ## Final deliverable
 
@@ -86,8 +86,7 @@ Always produce two parts. Show them in chat. Offer to save them to a file
 **only write the file after the user confirms.** `docs/plans/` is reserved for the
 planner's phased roadmaps; don't write a single-change build plan there. In an
 orchestrated run, write directly to the assigned artifact path without a second
-confirmation, do not edit tracked files, and let the orchestrator harvest it
-before cleanup.
+confirmation, and do not edit tracked files.
 
 ```markdown
 # Implementation Plan: [feature]

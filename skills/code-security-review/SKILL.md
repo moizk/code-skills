@@ -39,10 +39,10 @@ This skill **reviews only**. Do not run exploits, write attack payloads against 
 
 Map what the change exposes before judging any line. This is the surface every later finding is measured against.
 
-- **The diff** — what was added/modified/removed. In an orchestrated worktree use
-  the supplied immutable range (`git diff <base_ref>...<integration_ref>`); for
-  standalone uncommitted work use `git diff`, or use the PR diff. Note scope and
-  anything touched beyond the stated intent.
+- **The diff** — what was added/modified/removed. Read it with `git diff` plus any
+  untracked files, scoped against the run's recorded baseline so pre-existing work
+  isn't mistaken for the change; or use the PR diff when reviewing one. Note scope
+  and anything touched beyond the stated intent.
 - **The reachable surface** — what of this change an attacker or untrusted actor can reach: new or changed HTTP endpoints/routes, request parameters and headers, file uploads, message/queue consumers, CLI args, deserialization points, outbound requests, and anything that reads user- or third-party-supplied data.
 - **The privileged operations** — what the change does that carries authority: database access, file/path access, shell/command execution, auth/session/permission decisions, crypto, token/secret handling, payment or money movement, infra/config changes.
 - **The data it handles** — sensitive data in play (credentials, tokens, PII, financial/health data) and where it flows, is stored, or is logged.

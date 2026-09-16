@@ -42,9 +42,9 @@ A change can pass this review (clean, correct) and still fail `requirements-qa` 
 Reconstruct what the change is *supposed* to do before judging how it does it. This is the standard every later finding is measured against.
 
 - **The purpose** — what is this change trying to accomplish? From the PR description, ticket, commit messages, the user's stated ask, or the surrounding feature. Read `CLAUDE.md`/`AGENTS.md` for the project's conventions and standards.
-- **The diff** — what was added/modified/removed. In an orchestrated worktree use
-  the supplied immutable range (`git diff <base_ref>...<integration_ref>`); for
-  standalone uncommitted work use `git diff`, or use the PR diff. Note the scope,
+- **The diff** — what was added/modified/removed. Read it with `git diff` plus any
+  untracked files, scoped against the run's recorded baseline so pre-existing work
+  isn't mistaken for the change; or use the PR diff when reviewing one. Note the scope,
   and flag anything the stated purpose did not call for.
 - **The conventions it lives in** — how this codebase already does this kind of thing (naming, error handling, module layout, test style). A change is judged against the project's established patterns, not your personal preference.
 

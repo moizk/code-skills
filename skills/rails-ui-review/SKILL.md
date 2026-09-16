@@ -65,19 +65,17 @@ Read, in roughly this order:
   driver config (often `spec/support/cuprite.rb`) for window size + Chrome flags.
 
 ### 2. Prepare (assets + test DB + a free port)
-- **Honor the assigned resource namespace.** In an orchestrated worktree, use the
-  supplied database, port, cache, and queue settings for every command. Confirm
-  the project can map that namespace to a unique disposable test database before
-  preparing or resetting it. If it cannot, report `resource isolation unavailable`
-  so the orchestrator serializes this lens; never reset the shared default DB
-  while another stage may be running.
+- **Use a disposable test database, never a shared one.** Confirm the project can
+  give you a test database that is yours to reset. If it cannot, report
+  `no disposable database` and stop rather than resetting a database another
+  stage or the user may be using.
 - **Build assets first** (bundled apps): run the project's build (`yarn build &&
   yarn build:css`, `npm run build`, `rails assets:precompile`, etc.). Skipping
   this is why a page renders as raw HTML with no CSS — don't mistake that for the
   change being broken.
 - **Prepare the test DB:** `RAILS_ENV=test bin/rails db:prepare` (or
-  `db:test:prepare`). If the DB is confirmed exclusive to this worktree and you
-  need a clean slate, use `db:reset`; never reset a shared DB.
+  `db:test:prepare`). If the DB is confirmed disposable and you need a clean
+  slate, use `db:reset`; never reset a shared DB.
 - **Pick a free port** rather than hardcoding:
   `PORT=$(ruby -e 'require "socket"; s=TCPServer.new("127.0.0.1",0); print s.addr[1]; s.close')`
 
@@ -182,9 +180,9 @@ stylesheet to change (so a fix is one hop away). Distinguish "renders broken /
 is a separate step.
 
 ### 8. Tear down
-Stop the background server (by PID/port). Reset or drop only the disposable DB
-assigned to this worktree; never reset a shared default DB. Never leave a stray
-server or namespaced service running.
+Stop the background server (by PID/port). Reset or drop only the disposable test
+DB you prepared; never reset a shared default DB. Never leave a stray server or
+service running.
 
 ## Critical gotchas (these are where reviews go wrong)
 - **Unstyled page ≠ broken feature.** If everything looks like raw HTML, you
@@ -198,16 +196,16 @@ server or namespaced service running.
 - **Background, then poll.** Don't `sleep` blindly — wait for a 200 from the
   server before the browser connects, or the first screenshot is a connection
   error.
-- **Clean up.** Stop the server and clean only this worktree's namespaced test
-  resources; leftovers cause collisions and stale data breaks later test runs.
+- **Clean up.** Stop the server and clean only the disposable test resources you
+  created; leftovers cause collisions and stale data breaks later test runs.
 
 ## Validation — self-check before reporting
 - [ ] Assets were built (or it's an importmap app) — an unstyled page was ruled
       out as an asset-build issue, not reported as a design defect.
 - [ ] The server ran in `RAILS_ENV=test` on a confirmed-free port; the dev DB was
       never written to.
-- [ ] The assigned resource namespace was honored, or inability to isolate it was
-      reported before any shared DB reset so the orchestrator could serialize.
+- [ ] A disposable test database was used, or the inability to get one was
+      reported before any shared DB was reset.
 - [ ] Every **changed** view was actually visited and screenshotted with
       realistic data (so a no-spec-coverage 500 would surface).
 - [ ] The states that matter (empty / first-run / error / long-content / a **wide ≥1680px**

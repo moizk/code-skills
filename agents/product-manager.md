@@ -61,7 +61,8 @@ Step 1 into this step — don't re-ask what's already settled.
 ### Step 3 — Produce the handoff (you)
 
 Synthesize everything into the final deliverable below. This is the whole point
-of the agent: a clean artifact the next isolated agent can run with.
+of the agent: a clean artifact the next agent can run with, with no other
+context.
 
 ## Final deliverable
 
@@ -70,8 +71,7 @@ Always produce two parts. Show them in chat. Offer to save them to a file
 `docs/briefs/<slug>.md` only when the user explicitly wants a durable doc) —
 **only write the file after the user confirms.** In an orchestrated run, the
 assigned output path is already approved: write the artifact there without a
-second confirmation, do not edit tracked files, and let the orchestrator harvest
-it before removing the worktree.
+second confirmation, and do not edit tracked files.
 
 ```markdown
 # PM Brief: [task name]
