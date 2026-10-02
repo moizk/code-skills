@@ -3,59 +3,57 @@ paths:
   - "**/*.rb"
 ---
 
-# Rails — code style
+# Rails — code style: object vocabulary, dependency direction, Ruby conventions
 
-Applies to any Ruby on Rails project.
+Applies to any Ruby on Rails project. These rules cover every Ruby file; models,
+controllers, services, migrations, and jobs each have their own rule that loads
+alongside this one when you edit those directories.
+
+## Every piece of logic has one home
+Rails codebases scale on a closed vocabulary of object kinds. Pick the kind from
+this table before writing code. If nothing fits, the design is off, not the table.
+
+| Kind | Directory | Suffix | Public API | Owns |
+|---|---|---|---|---|
+| Model | `app/models` | — | associations, scopes, validations | one record's own data and rules |
+| Service | `app/services` | `Service` | `call` → Result | writes spanning models, workflows, external calls |
+| Query | `app/queries` | `Query` | `call` → Relation | reads spanning joins or taking several filters |
+| Policy | `app/policies` | `Policy` | action predicates + `Scope` | authorization, nothing else |
+| Form | `app/forms` | `Form` | attributes, `valid?` | validating input that maps to several models |
+| Presenter | `app/presenters` | `Presenter` | view-facing methods | display logic kept out of views and models |
+| Job | `app/jobs` | `Job` | `perform` | scheduling; delegates to a service |
+| Mailer | `app/mailers` | `Mailer` | one method per email | templates; sent with `deliver_later` |
+
+- **Dependencies point one way:** controllers and jobs → services → models, queries, mailers. Models call nothing above them: no services, no controllers, no `current_user`, no request state.
+- **Match the project before this table.** If the codebase already has `app/operations` or its own Result type, follow it. The table decides only when the project has no convention yet.
+- **A new kind of object needs a row here first** (suffix, directory, public API) before the first instance is written. An unlisted `Manager`, `Handler`, or `Util` is a smell.
 
 ## Class definitions
-- **Define namespaced classes inline** with the compact form: `class Module1::Class1`, not nested `module Module1; class Class1; end; end`.
+- **Define namespaced classes with the compact form:** `class Billing::ChargeCardService`, not nested `module Billing; class ChargeCardService; end; end`.
+- **One class per file, path mirrors namespace:** `Billing::ChargeCardService` lives in `app/services/billing/charge_card_service.rb`. Zeitwerk autoloading depends on it.
 
-## ActiveRecord callbacks
-- **Keep business logic out of `before_*` / `after_*` callbacks.** Put it in the service or the controller flow that drives the change, where it's explicit and testable in isolation.
-- **Callbacks hide side effects** — they fire on every save from any code path (console, imports, tests, nested updates), making behavior hard to predict and tests brittle.
-- **Reserve callbacks for genuinely intrinsic, record-local concerns** — normalizing an attribute before validation, maintaining a derived column, writing an audit/log entry, cleaning up owned resources. If the logic spans models, calls external systems, or orchestrates a workflow, it belongs in a service.
+## Method signatures
+- **Keyword arguments for anything beyond two parameters, and for every boolean.** `create(user:, plan:, trial: false)` reads at the call site; `create(user, plan, false)` does not.
+- **Trailing commas in multi-line literals** (arrays, hashes, argument lists) so adding an entry is a one-line diff.
+- **Guard clauses over nesting.** Bail early so the happy path sits at the lowest indentation (see the general code-style rule).
 
-## Controllers — auth first
-- **Every controller action enforces authentication and authorization.** A reader should see both before any work happens.
-- Authenticate the request (e.g. Devise `authenticate_user!`, applicant OTP session) — never assume a logged-in user.
-- Authorize the specific action against the specific resource with the project's policy layer before acting on it. Don't rely on hidden UI or unguarded scopes as the only gate.
+## Time and money
+- **`Time.current` and `Date.current`, never `Time.now` or `Date.today`.** The latter ignore the app time zone and break under `travel_to` in tests.
+- **Money is an integer in minor units (cents) or a `decimal` column, never a `Float`.**
+- **Inject clocks and random values** where logic depends on them, so tests can control them.
 
-## Migrations
-- **Name migration files with a real, current timestamp** (`YYYYMMDDHHMMSS`, the actual UTC date/time you create it) — generate it from the clock (`rails g migration`, or `date -u +%Y%m%d%H%M%S`), never hand-write or copy one. Stale or invented prefixes collide with existing migrations and produce duplicate-timestamp errors, and a prefix earlier than an already-run migration silently won't run.
-- **Every migration must be reversible** — `db:rollback` then `db:migrate` again must both succeed with no error. If Rails can't infer the inverse (e.g. `change_column`, raw `execute`, data backfills, dropping a column with options), don't rely on `change`; write explicit `up`/`down` methods (or `reversible do |dir|`) so `down` cleanly restores the prior schema. Verify by actually rolling back and re-migrating before finishing.
-- **Never edit a migration that has already run** — anything already recorded in `schema_migrations`, *including unshipped local ones you migrated this session*. Editing it in place forces a `db:reset` / full drop to reconcile, which destroys local data and diverges every other environment.
-- **Never drop or reset the entire database** to make a schema change take effect. That is not an acceptable way to apply a migration change.
-- To change or undo an already-run migration, do one of two things: **(a) roll it back** (`db:rollback` / the migration's `down`), correct it, and re-migrate; or **(b) add a new migration** carrying the corrective expression (`remove_column`, `change_column`, `rename_column`, …) so existing databases move forward cleanly with `db:migrate`.
-- **Always ask the user which option** (rollback vs. new migration) before proceeding — do not pick on their behalf.
+## Configuration and constants
+- **No magic numbers or inline URLs.** Name them as constants on the class that owns them (`MAX_ATTEMPTS = 3`).
+- **Environment-dependent values go through one place:** `Rails.application.config_for`, credentials, or a single config object. Never read `ENV[]` from models, services, or controllers.
 
-## Enums
-- Use Rails' built-in `enum` with string values. Do not use DB-level enums - they are inflexible and not worth the complexity. Use DB string columns for enums. Use the `suffix: true` option to avoid method name conflicts and improve readability. Do not add DB-backed default string values for the enums as well.
+## Errors
+- **Expected failures are return values; unexpected failures raise.** A service returns a failed Result for "card declined". A record that must exist but is missing raises and reaches the error tracker.
+- **Never rescue `StandardError` or `Exception` to swallow.** Rescue the narrowest class you can actually handle and re-raise or report everything else.
+- **Custom errors inherit from one app base class** (`class AppError < StandardError`) so the base controller can map them with a single `rescue_from`.
 
-Example:
-```ruby
-  enum :status, {
-    pending: 'pending',
-    completed: 'completed',
-    declined: 'declined',
-  }, default: :pending, suffix: true
-```
+## Formatting is RuboCop's job
+- The project's `.rubocop.yml` decides indentation, quotes, and line length. Don't restate formatting here; run the linter and fix what it reports.
+- Follow the existing files on `# frozen_string_literal: true`.
 
-## Service objects
-- **Put complex business logic in service objects**, not in controllers or fat models.
-- **A service has exactly one public method: `call`.** All other methods are private. If you need to expose the service as a one-liner, a class-level `self.call(...)` that instantiates and delegates to the instance `#call` is fine.
-- **Multiple public methods means it's not really a service.** Either it's a different kind of object (a query, a builder, a presenter, a plain model), or it's doing several jobs and should be **split into multiple single-purpose services**.
-- Name services after the action they perform (a verb phrase) and **suffix the class name with `Service`**, e.g. `CreateLeaseOfferService`, `SyncNooklynLeasesService`.
-- Services do not throw exception. Instead, they return a result object indicating success or failure, and the caller handles the flow accordingly.
-- **Use instance variables (`@`) for the params you receive** — don't add redundant `attr_reader`s for them.
-
-### Common result object
-- **Every service returns a shared Result object** carrying a success/failure status and a payload — never raw booleans, nils, or domain objects returned ad hoc.
-- Callers branch on the status (`result.success?` / `result.failure?`) and read data from the payload. Reuse the project's existing Result type if one exists; introduce a single shared one if it doesn't, rather than per-service result shapes.
-
-## Keep controllers thin
-- Controllers parse params, invoke a service, and render/redirect based on the result. **No business logic in controllers.**
-- A controller action should read as: authorize → call service → handle `success`/`failure` → respond.
-
-## Models vs services
-- **Model-related behavior stays in the model** — associations, scopes, validations, simple derived attributes, and logic that's intrinsic to that single record. Don't extract these into services.
-- Reach for a service when logic **spans multiple models, calls external systems, or orchestrates a multi-step workflow** — anything beyond a single record's own concerns.
+## Related
+- JSON endpoints: `rails-api` skill. Background work: `async-jobs` skill. ERB, helpers, Stimulus: `rails-ui-frontend` rule.
