@@ -9,6 +9,7 @@
 - Test behavior, not implementation details
 - Each test should verify one concept
 - Tests should be independent — no shared mutable state between tests
+- A test that passes only on a retry is a bug to fix, never a pass to count
 - Every test name should read like a specification
 - Keep in mind the testing pyramid: prefer unit tests for core logic, and use integration/feature tests for end-to-end flows and UI interactions.
 - Keep in mind the possible flakiness of time-sensitive tests. If necessary, use time-mocking libraries to control time in tests.
