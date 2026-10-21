@@ -31,12 +31,13 @@ Applies to any Ruby on Rails project when doing the ui/frontend part.
 - Only introduce a new variable when no existing one is a reasonable match, and define it alongside the others following the same naming convention — never hardcode the literal value inline.
 
 ## Don't build markup in JavaScript
+Applies to Stimulus and vanilla JS; in React repos the component is the markup.
 - If JS needs to insert a UI element, define that element as an HTML `<template>` or a Rails partial and have the JS clone/insert it. Don't construct DOM via string concatenation or long `createElement` chains.
 - Especially when the same element already appears in ERB: extract it to a shared partial so the server-rendered and JS-inserted versions stay identical and DRY.
 - Example: a list where clicking "Add" inserts a new row — render the row from a `<template>` (or partial), and have the Stimulus controller clone that node, instead of hardcoding the row's HTML in JS and use the same element in the erb for building the list.
 
-## Use Stimulus for JavaScript
-- Write behavior as Stimulus controllers (targets, actions, values) rather than loose scripts or inline `onclick` handlers.
+## Use the project's JavaScript framework, and only that one
+- Hotwire repos write behavior as Stimulus controllers (see the Stimulus rule); React repos write components (see the React rule). Never loose scripts or inline `onclick` handlers, and never introduce the other framework into a repo.
 
 ## Keep Ruby out of ERB
 - Don't write complex Ruby logic inline in `.erb` files. Extract it to a helper.
